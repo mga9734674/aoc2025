@@ -12,7 +12,7 @@ import (
 const PointIni = 50
 
 type Rotation struct {
-	IsRight bool
+	IsTrigo bool
 	N       int
 }
 
@@ -32,7 +32,7 @@ func ParseAndRun(path string) (int, error) {
 		rotation := Rotation{}
 
 		if seq[0:1] == "R" {
-			rotation.IsRight = true
+			rotation.IsTrigo = true
 		}
 
 		n, err := strconv.Atoi(string(seq[1:]))
@@ -58,17 +58,33 @@ func Run(rotations []Rotation) int {
 	currPoint := PointIni
 
 	for _, r := range rotations {
-		if r.IsRight {
-			currPoint = (currPoint + r.N) % 100
+		if r.N == 0 {
+			continue
+		}
+
+		if r.IsTrigo {
+			x := r.N%100 - currPoint
+			z := int(math.Abs(float64((100 - x))))
+
+			count := r.N / 100
+
+			if currPoint > 0 && x > 0 {
+				count++
+			}
+
+			if currPoint > 0 && z == 100 {
+				count++
+			}
+
+			s += count
+			currPoint = z % 100
 		} else {
-			currPoint = int(math.Abs(float64((100 - (r.N%100 - currPoint))))) % 100
+			x := currPoint + r.N
+			s += x / 100
+			currPoint = x % 100
 		}
 
-		if currPoint == 0 {
-			s++
-		}
-
-		fmt.Println(currPoint)
+		fmt.Println(currPoint, s)
 	}
 
 	return s

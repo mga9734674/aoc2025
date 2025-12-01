@@ -20,42 +20,44 @@ func TestRun(t *testing.T) {
 	testCases := []testCase{
 		{
 			rotations: []puzzle1.Rotation{
-				{IsRight: false, N: 100},
+				{IsTrigo: true, N: 100},
 			},
-			expected: 0,
+			expected: 1,
 		},
 		{
 			rotations: []puzzle1.Rotation{
-				{IsRight: true, N: 100},
+				{IsTrigo: false, N: 100},
 			},
-			expected: 0,
+			expected: 1,
 		},
 		{
 			rotations: []puzzle1.Rotation{
-				{IsRight: false, N: 68},
-				{IsRight: false, N: 30},
-				{IsRight: true, N: 48},
-				{IsRight: false, N: 5},
-				{IsRight: true, N: 60},
-				{IsRight: false, N: 55},
-				{IsRight: false, N: 1},
-				{IsRight: false, N: 99},
-				{IsRight: true, N: 14},
-				{IsRight: false, N: 82},
+				{IsTrigo: true, N: 68},
+				{IsTrigo: true, N: 30},
+				{IsTrigo: false, N: 48},
+				{IsTrigo: true, N: 5},
+				{IsTrigo: false, N: 60},
+				{IsTrigo: true, N: 55},
+				{IsTrigo: true, N: 1},
+				{IsTrigo: true, N: 99},
+				{IsTrigo: false, N: 14},
+				{IsTrigo: true, N: 82},
 			},
-			expected: 3,
+			expected: 6,
 		},
 		{
 			rotations: []puzzle1.Rotation{
-				{IsRight: false, N: 168},
-				{IsRight: false, N: 30},
-				{IsRight: false, N: 152},
-				{IsRight: true, N: 2},
-				{IsRight: true, N: 298},
-				{IsRight: true, N: 1},
-				{IsRight: false, N: 101},
+				{IsTrigo: true, N: 168},   // 82 2
+				{IsTrigo: true, N: 30},    // 52 2
+				{IsTrigo: true, N: 152},   // 0 4
+				{IsTrigo: false, N: 2},    // 2 4
+				{IsTrigo: false, N: 298},  // 0 7
+				{IsTrigo: false, N: 1},    // 1 7
+				{IsTrigo: true, N: 101},   // 0 9
+				{IsTrigo: true, N: 1000},  // 0 19
+				{IsTrigo: false, N: 1000}, // 0 29
 			},
-			expected: 3,
+			expected: 29,
 		},
 	}
 
