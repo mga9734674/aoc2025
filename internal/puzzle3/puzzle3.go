@@ -2,11 +2,13 @@ package puzzle3
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"os"
 	"strings"
 )
 
-func ParseAndRun(path string) (int, error) {
+func ParseAndRun(path string, size int) (int, error) {
 	payload, err := os.ReadFile(path)
 	if err != nil {
 		return 0, err
@@ -18,7 +20,7 @@ func ParseAndRun(path string) (int, error) {
 
 	for _, r := range splitted {
 		n := len(r)
-		if n < 2 {
+		if n < size {
 			return 0, errors.New("invalid bank length")
 		}
 
@@ -31,35 +33,51 @@ func ParseAndRun(path string) (int, error) {
 		banks = append(banks, bank)
 	}
 
-	res := Run(banks)
+	res := Run(banks, size)
 
 	return res, nil
 }
 
-func Run(banks [][]int) int {
+func Run(banks [][]int, size int) int {
 	s := 0
 
 	for _, bank := range banks {
-		s += largestNumberInBank(bank)
+		s += largestNumberInBank(bank, size)
+		fmt.Println(s, bank)
 	}
 
 	return s
 }
 
-func largestNumberInBank(b []int) int {
+func largestNumberInBank(b []int, size int) int {
 	n := len(b)
-	m1, m2 := b[n-2], b[n-1]
+	m := make([]int, size)
 
-	for i := n - 3; i >= 0; i-- {
-		if b[i] >= m1 {
-			t := m1
+	for i := range size {
+		m[size-i-1] = b[n-i-1]
+	}
 
-			m1 = b[i]
-			if t > m2 {
-				m2 = t
+	for i := n - size - 1; i >= 0; i-- {
+		x := b[i]
+		lastWasChanged := false
+
+		for j := range size {
+			if x >= m[j] && (lastWasChanged || j == 0) {
+				t := m[j]
+				m[j] = x
+				x = t
+				lastWasChanged = true
+			} else {
+				lastWasChanged = false
 			}
 		}
 	}
 
-	return 10*m1 + m2
+	s := 0
+
+	for i := range size {
+		s += int(math.Pow10(size-i-1)) * m[i]
+	}
+
+	return s
 }
