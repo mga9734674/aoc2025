@@ -2,7 +2,6 @@ package puzzle2
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -53,17 +52,31 @@ func Run(ranges []Range) int {
 	for _, r := range ranges {
 		for i := r.Start; i < r.End+1; i++ {
 			id := strconv.Itoa(i)
-			if len(id)%2 == 1 {
-				continue
-			}
 
-			if id[0:len(id)/2] == id[len(id)/2:] {
+			if kmp(id) {
 				s += i
-
-				fmt.Println(id)
 			}
 		}
 	}
 
 	return s
+}
+
+func kmp(s string) bool {
+	n := len(s)
+	lsp := make([]int, n)
+	j := 0
+
+	for i := 1; i < n; i++ {
+		for j > 0 && s[i] != s[j] {
+			j = lsp[j-1]
+		}
+
+		if s[i] == s[j] {
+			j++
+			lsp[i] = j
+		}
+	}
+
+	return lsp[n-1] > 0 && n%(n-lsp[n-1]) == 0
 }

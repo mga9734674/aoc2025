@@ -20,6 +20,12 @@ func TestRun(t *testing.T) {
 	testCases := []testCase{
 		{
 			ranges: []puzzle2.Range{
+				{Start: 4343, End: 4344},
+			},
+			expected: 4343,
+		},
+		{
+			ranges: []puzzle2.Range{
 				{Start: 11, End: 22},
 				{Start: 95, End: 115},
 				{Start: 998, End: 1012},
@@ -28,8 +34,11 @@ func TestRun(t *testing.T) {
 				{Start: 1698522, End: 1698528},
 				{Start: 446443, End: 446449},
 				{Start: 38593856, End: 38593862},
+				{Start: 565653, End: 565659},
+				{Start: 824824821, End: 824824827},
+				{Start: 2121212118, End: 2121212124},
 			},
-			expected: 1227775554,
+			expected: 4174379265,
 		},
 	}
 
