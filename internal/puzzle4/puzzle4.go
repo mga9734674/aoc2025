@@ -35,8 +35,28 @@ func ParseAndRun(path string) (int, error) {
 }
 
 func Run(rows [][]bool) int {
-	s := 0
+	s, x := 0, 1
+
+	for x > 0 {
+		points := markedPoints(rows)
+		disablePoints(rows, points)
+		x = len(points)
+		s += x
+	}
+
+	return s
+}
+
+func disablePoints(rows [][]bool, points [][]int) {
+	for _, point := range points {
+		rows[point[0]][point[1]] = false
+	}
+}
+
+func markedPoints(rows [][]bool) [][]int {
 	n := len(rows)
+
+	var points [][]int
 
 	for i := range n {
 		p := len(rows[i])
@@ -85,10 +105,10 @@ func Run(rows [][]bool) int {
 			}
 
 			if s1 < 4 {
-				s++
+				points = append(points, []int{i, j})
 			}
 		}
 	}
 
-	return s
+	return points
 }

@@ -31,7 +31,7 @@ func TestRun(t *testing.T) {
 				{false, true, true, true, true, true, true, true, true, false},
 				{true, false, true, false, true, true, true, false, true, false},
 			},
-			expected: 13,
+			expected: 43,
 		},
 	}
 
