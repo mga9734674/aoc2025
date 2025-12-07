@@ -9,23 +9,35 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const test1 = `123 328  51 64 
+ 45 64  387 23 
+  6 98  215 314
+*   +   *   +  
+`
+
+const test2 = `945 486  2
+778 257  4
+488 182  9
+785 344 72
++   *   + 
+`
+
 func TestRun(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		c        []puzzle6.Compute
+		x        []byte
 		expected int
 	}
 
 	testCases := []testCase{
 		{
-			c: []puzzle6.Compute{
-				{Nums: []int{123, 45, 6}, Ope: "*"},
-				{Nums: []int{328, 64, 98}, Ope: "+"},
-				{Nums: []int{51, 387, 215}, Ope: "*"},
-				{Nums: []int{64, 23, 314}, Ope: "*+"},
-			},
-			expected: 4277556,
+			x:        []byte(test1),
+			expected: 3263827,
+		},
+		{
+			x:        []byte(test2),
+			expected: 243169394727,
 		},
 	}
 
@@ -33,7 +45,9 @@ func TestRun(t *testing.T) {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			t.Parallel()
 
-			require.Equal(t, tc.expected, puzzle6.Run(tc.c))
+			got, err := puzzle6.ParseAndRun(tc.x)
+			require.NoError(t, err)
+			require.Equal(t, tc.expected, got)
 		})
 	}
 }

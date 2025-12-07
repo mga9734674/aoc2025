@@ -1,75 +1,111 @@
 package puzzle6
 
 import (
+	"bytes"
 	"errors"
-	"os"
-	"regexp"
-	"strconv"
-	"strings"
+	"fmt"
+	"math"
 )
-
-var reNum = regexp.MustCompile(`([0-9]+|\*|\+)\s*`)
 
 type Compute struct {
 	Nums []int
-	Ope  string
+	Op   string
 }
 
-func ParseAndRun(path string) (int, error) {
-	payload, err := os.ReadFile(path)
-	if err != nil {
-		return 0, err
-	}
+func ParseAndRun(x []byte) (int, error) {
+	n := countNl(x)
+	x = bytes.ReplaceAll(x, []byte{10}, nil)
+	p := len(x) / n
 
-	splitted := strings.Split(strings.TrimRight(string(payload), "\n"), "\n")
-	n := len(splitted)
-	if n < 3 {
+	if len(x)%n != 0 {
 		return 0, errors.New("invalid format")
 	}
-	rows := make([][]string, 0, n)
 
-	for i := range n {
-		match := reNum.FindAllStringSubmatch(splitted[i], -1)
-		row := make([]string, 0, len(match))
-
-		if i > 0 && len(match) != len(rows[i-1]) {
-			return 0, errors.New("invalid length")
-		}
-
-		for _, m := range match {
-			row = append(row, m[1])
-		}
-
-		rows = append(rows, row)
-	}
-
-	p := len(rows[0])
-	c := make([]Compute, p)
+	sepIndex := []int{-1}
 
 	for j := range p {
-		nums := make([]int, n-1)
-		for i := range n - 1 {
-			num, err := strconv.Atoi(rows[i][j])
-			if err != nil {
-				return 0, err
-			}
+		isEmpty := true
 
-			nums[i] = num
+		for i := range n {
+			if x[j+p*i] != 32 {
+				isEmpty = false
+
+				break
+			}
 		}
 
-		c[j] = Compute{Nums: nums, Ope: rows[n-1][j]}
+		if isEmpty {
+			sepIndex = append(sepIndex, j)
+		}
 	}
 
-	res := Run(c)
+	sepIndex = append(sepIndex, p)
+
+	q := len(sepIndex)
+	c := make([]Compute, 0)
+
+	for k := 1; k < q; k++ {
+		block := make([][]int, 0)
+
+		for j := sepIndex[k-1] + 1; j < sepIndex[k]; j++ {
+			digits := make([]int, 0)
+
+			for i := range n - 1 {
+				y := x[j+p*i]
+
+				if y != 32 {
+					digits = append(digits, int(y-'0'))
+				}
+			}
+
+			block = append(block, digits)
+		}
+
+		c = append(c, buildCompute(block, string(x[sepIndex[k-1]+1+p*(n-1)])))
+	}
+
+	fmt.Println(c)
+
+	res := run(c)
 
 	return res, nil
 }
 
-func Run(c []Compute) int {
+func buildCompute(block [][]int, op string) Compute {
+	n := len(block)
+	nums := make([]int, n)
+
+	for i := range n {
+		p := len(block[i])
+		num := 0
+
+		for j := range p {
+			num += int(math.Pow10(p-j-1)) * block[i][j]
+		}
+
+		nums[i] = num
+	}
+
+	return Compute{Nums: nums, Op: op}
+}
+
+func countNl(v []byte) int {
+	s := 0
+
+	for _, x := range v {
+		if x == 10 {
+			s++
+		}
+	}
+
+	return s
+}
+
+func run(c []Compute) int {
 	s := 0
 
 	for _, x := range c {
-		if x.Ope == "*" {
+		if x.Op == "*" {
 			s += mul(x.Nums)
 		} else {
 			s += sum(x.Nums)
