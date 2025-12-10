@@ -14,45 +14,33 @@ func Run(x []byte) (int, error) {
 		return 0, fmt.Errorf("invalid format %d %d %d", len(x), n, len(x)%n)
 	}
 
-	s := 0
-	beams := []int{p / 2}
+	seen := make(map[int]int)
 
-	for i := 2 * p; i < n*p; i += p {
-		beamsNew := make([]int, 0)
-		seen := make(map[int]struct{})
-
-		for _, b := range beams {
-			j := i + b
-
-			if x[j] == '^' {
-				s++
-
-				if !has(seen, b-1) {
-					beamsNew = append(beamsNew, b-1)
-					seen[b-1] = struct{}{}
-				}
-
-				beamsNew = append(beamsNew, b+1)
-			}
-
-			if x[j] == '.' && !has(seen, b) {
-				beamsNew = append(beamsNew, b)
-				seen[b] = struct{}{}
-			}
-		}
-
-		beams = beamsNew
-	}
-
-	return s, nil
+	return run(x, seen, n, p, 1, p/2), nil
 }
 
-func has(m map[int]struct{}, i int) bool {
-	if _, ok := m[i]; ok {
-		return true
+func run(x []byte, seen map[int]int, n, p, i, j int) int {
+	if i < 0 || i > n-1 || j < 0 || j > p-1 {
+		return 1
 	}
 
-	return false
+	idx := i*p + j
+
+	if v, ok := seen[i*p+j]; ok {
+		return v
+	}
+
+	s := 0
+
+	if x[idx] == '^' {
+		s += run(x, seen, n, p, i+1, j-1) + run(x, seen, n, p, i+1, j+1)
+	} else {
+		s += run(x, seen, n, p, i+1, j)
+	}
+
+	seen[idx] = s
+
+	return s
 }
 
 func countNl(v []byte) int {
