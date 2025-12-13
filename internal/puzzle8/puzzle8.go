@@ -14,6 +14,7 @@ type Point struct {
 type Dist struct {
 	D    float64
 	I, J int
+	X    float64
 }
 
 func Run(x []byte) (int, error) {
@@ -33,7 +34,15 @@ func Run(x []byte) (int, error) {
 
 	for i := 0; i < n-1; i++ {
 		for j := i + 1; j < n; j++ {
-			d = append(d, Dist{D: dist(points[i], points[j]), I: i, J: j})
+			d = append(
+				d,
+				Dist{
+					D: dist(points[i], points[j]),
+					I: i,
+					J: j,
+					X: points[i].X * points[j].X,
+				},
+			)
 		}
 	}
 
@@ -41,47 +50,36 @@ func Run(x []byte) (int, error) {
 
 	circuits := make(map[int]map[int]struct{})
 
-	for i := range n {
+	for i := range len(d) {
 		addAndMerge(circuits, d[i].I, d[i].J)
-	}
 
-	lens := make(map[int]struct{})
-
-	for _, v := range circuits {
-		lens[len(v)] = struct{}{}
-	}
-
-	p := 1
-
-	for range 3 {
-		p *= getMaxAndDelete(lens)
-	}
-
-	return p, nil
-}
-
-func getMaxAndDelete(a map[int]struct{}) int {
-	if len(a) == 0 {
-		return 1
-	}
-
-	m := 0
-
-	for k := range a {
-		if k > m {
-			m = k
+		if isSingleCircuit(circuits, n) {
+			return int(math.Round(d[i].X)), nil
 		}
 	}
 
-	delete(a, m)
+	return 0, nil
+}
 
-	return m
+func isSingleCircuit(m map[int]map[int]struct{}, n int) bool {
+	if len(m) != n {
+		return false
+	}
+
+	for _, v := range m {
+		if len(v) != n {
+			return false
+		}
+	}
+
+	return true
 }
 
 func addAndMerge(m map[int]map[int]struct{}, x, y int) {
 	if _, ok := m[x]; !ok {
 		m[x] = map[int]struct{}{x: {}, y: {}}
 	}
+
 	if _, ok := m[y]; !ok {
 		m[y] = map[int]struct{}{x: {}, y: {}}
 	}
